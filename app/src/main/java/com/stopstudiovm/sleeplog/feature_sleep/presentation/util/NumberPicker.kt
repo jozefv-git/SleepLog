@@ -1,7 +1,7 @@
 package com.stopstudiovm.sleeplog.feature_sleep.presentation.util
 
-import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,7 +16,7 @@ fun NumberPicker(
     },
     value: Int,
     onValueChange: (Int) -> Unit,
-    dividersColor: Color = MaterialTheme.colors.primary,
+    dividersColor: Color = MaterialTheme.colorScheme.primary,
     range: Iterable<Int>,
     textStyle: TextStyle = LocalTextStyle.current,
 ) {

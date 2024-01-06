@@ -1,5 +1,6 @@
 package com.stopstudiovm.sleeplog.feature_sleep.presentation.sleep
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -9,6 +10,16 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,11 +41,11 @@ import com.stopstudiovm.sleeplog.feature_sleep.presentation.sleep.components.Ord
 import com.stopstudiovm.sleeplog.feature_sleep.presentation.sleep.components.SleepItem
 import com.stopstudiovm.sleeplog.feature_sleep.presentation.util.Screen
 import com.stopstudiovm.sleeplog.ui.theme.DarkGray
-import com.stopstudiovm.sleeplog.ui.theme.MaterialRed
 import com.stopstudiovm.sleeplog.ui.theme.RedOrange
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @ExperimentalAnimationApi
 @Composable
 fun SleepsScreen(
@@ -44,7 +55,9 @@ fun SleepsScreen(
 
     // We need this for our snack bar
     val state = viewModel.state.value
-    val scaffoldState = rememberScaffoldState()
+    val snackbarHostState = remember {
+        SnackbarHostState()
+    }
     // This for show of the SnackBar
     val scope = rememberCoroutineScope()
 
@@ -75,10 +88,10 @@ fun SleepsScreen(
             .nestedScroll(nestedScrollConnection),
         snackbarHost = {
             // Reuse default SnackBarHost to have default animation and timing handling
-            SnackbarHost(it) { data ->
+            SnackbarHost(snackbarHostState) { data ->
                 // Custom SnackBar with the custom colors
                 Snackbar(
-                    backgroundColor = RedOrange,
+                    containerColor = RedOrange,
                     contentColor = DarkGray,
                     snackbarData = data
                 )
@@ -93,12 +106,11 @@ fun SleepsScreen(
                     onClick = {
                         navController.navigate(Screen.AddEditSleepScreen.route)
                     },
-                    backgroundColor = MaterialTheme.colors.primary
+                    containerColor = MaterialTheme.colorScheme.primary
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = "Add sleep")
                 }
         },
-        scaffoldState = scaffoldState
     ) {
         // Content of our scaffold (Top which contain selection buttons)
         Column(
@@ -167,7 +179,7 @@ fun SleepsScreen(
                             // Showing snackBar need coroutine because it take some time for show up
                             scope.launch {
                                 // Our result of our SnackBar
-                                val result = scaffoldState.snackbarHostState.showSnackbar(
+                                val result = snackbarHostState.showSnackbar(
                                     message = "Sleep deleted",
                                     actionLabel = "Undo"
                                 )

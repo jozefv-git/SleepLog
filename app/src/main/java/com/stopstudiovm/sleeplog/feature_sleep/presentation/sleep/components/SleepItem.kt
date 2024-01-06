@@ -2,12 +2,12 @@ package com.stopstudiovm.sleeplog.feature_sleep.presentation.sleep.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,22 +70,22 @@ fun SleepItem(
         ) {
             Text(
                 text = sleep.quality,
-                style = MaterialTheme.typography.h4,
+                style = MaterialTheme.typography.titleSmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
             //Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "${sleep.sleepDurationHours} Hours ${sleep.sleepDurationMinutes} Minutes",
-                style = MaterialTheme.typography.h3,
+                style = MaterialTheme.typography.titleMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
             Spacer(modifier = Modifier.height(16.dp))
-            if(sleep.content.isNotEmpty()){
+            if (sleep.content.isNotEmpty()) {
                 Text(
                     text = sleep.content,
-                    style = MaterialTheme.typography.body2,
+                    style = MaterialTheme.typography.bodyMedium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -93,7 +93,7 @@ fun SleepItem(
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = sleep.date,
-                style = MaterialTheme.typography.body2,
+                style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis

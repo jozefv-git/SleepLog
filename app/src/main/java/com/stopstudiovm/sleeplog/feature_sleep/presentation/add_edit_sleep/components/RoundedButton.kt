@@ -6,8 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,8 +21,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun RoundedButton(
     text: String,
-    textStyle: TextStyle = MaterialTheme.typography.body1,
-    textColor: Color = MaterialTheme.colors.onSurface,
+    textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
     background: Color,
     borderColor: Color,
     onClick: () -> Unit

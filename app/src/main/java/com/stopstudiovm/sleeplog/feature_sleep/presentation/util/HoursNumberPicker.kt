@@ -1,7 +1,8 @@
 package com.stopstudiovm.sleeplog.feature_sleep.presentation.util
+
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,7 +37,7 @@ fun HoursNumberPicker(
     value: Hours,
     hoursRange: Iterable<Int> = when (value) {
         // Real it should be 0..23 because we have 24 hours
-            // But we want only min 3 and max 12 hours
+        // But we want only min 3 and max 12 hours
         is FullHours -> (3..12)
         is AMPMHours -> (1..12)
     },
@@ -45,7 +46,7 @@ fun HoursNumberPicker(
     hoursDivider: (@Composable () -> Unit)? = null,
     minutesDivider: (@Composable () -> Unit)? = null,
     onValueChange: (Hours) -> Unit,
-    dividersColor: Color = MaterialTheme.colors.primary,
+    dividersColor: Color = MaterialTheme.colorScheme.primary,
     textStyle: TextStyle = LocalTextStyle.current,
 ) {
     when (value) {
@@ -61,6 +62,7 @@ fun HoursNumberPicker(
                 dividersColor = dividersColor,
                 textStyle = textStyle,
             )
+
         is AMPMHours ->
             AMPMHoursNumberPicker(
                 modifier = modifier,
@@ -85,7 +87,7 @@ fun FullHoursNumberPicker(
     hoursDivider: (@Composable () -> Unit)? = null,
     minutesDivider: (@Composable () -> Unit)? = null,
     onValueChange: (Hours) -> Unit,
-    dividersColor: Color = MaterialTheme.colors.primary,
+    dividersColor: Color = MaterialTheme.colorScheme.primary,
     textStyle: TextStyle = LocalTextStyle.current,
 ) {
     Row(
@@ -129,7 +131,7 @@ fun AMPMHoursNumberPicker(
     hoursDivider: (@Composable () -> Unit)? = null,
     minutesDivider: (@Composable () -> Unit)? = null,
     onValueChange: (Hours) -> Unit,
-    dividersColor: Color = MaterialTheme.colors.primary,
+    dividersColor: Color = MaterialTheme.colorScheme.primary,
     textStyle: TextStyle = LocalTextStyle.current,
 ) {
     Row(
