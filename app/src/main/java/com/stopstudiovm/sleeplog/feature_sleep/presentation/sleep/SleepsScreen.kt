@@ -35,13 +35,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.stopstudiovm.sleeplog.feature_sleep.presentation.sleep.components.OrderSection
 import com.stopstudiovm.sleeplog.feature_sleep.presentation.sleep.components.SleepItem
 import com.stopstudiovm.sleeplog.feature_sleep.presentation.util.Screen
+import com.stopstudiovm.sleeplog.feature_sleep.presentation.util.SpacerVerXL
 import com.stopstudiovm.sleeplog.ui.theme.DarkGray
 import com.stopstudiovm.sleeplog.ui.theme.RedOrange
+import com.stopstudiovm.sleeplog.ui.theme.SpacesShapes
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -49,13 +50,15 @@ import kotlin.math.roundToInt
 @ExperimentalAnimationApi
 @Composable
 fun SleepsScreen(
+    spacesShapes: SpacesShapes = SpacesShapes(),
     navController: NavController,
-    viewModel: SleepsViewModel = hiltViewModel()
+    sleepsState: SleepsState,
+    onEvent: (SleepsEvent) -> Unit
 ) {
 
     // We need this for our snack bar
-    val state = viewModel.state.value
-    val snackbarHostState = remember {
+    //val state = viewModel.state.value
+    val snackBarHostState = remember {
         SnackbarHostState()
     }
     // This for show of the SnackBar
@@ -88,7 +91,7 @@ fun SleepsScreen(
             .nestedScroll(nestedScrollConnection),
         snackbarHost = {
             // Reuse default SnackBarHost to have default animation and timing handling
-            SnackbarHost(snackbarHostState) { data ->
+            SnackbarHost(snackBarHostState) { data ->
                 // Custom SnackBar with the custom colors
                 Snackbar(
                     containerColor = RedOrange,
@@ -99,6 +102,7 @@ fun SleepsScreen(
         },
         floatingActionButton = {
                 FloatingActionButton(
+                    shape = spacesShapes.shapes.large,
                     modifier = Modifier
                         .offset {
                             IntOffset(x = 0, y = -fabOffsetHeightPx.value.roundToInt())
@@ -116,7 +120,7 @@ fun SleepsScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(spacesShapes.spaces.spaceXL)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -131,7 +135,7 @@ fun SleepsScreen(
                 IconButton(
                     onClick = {
                         // We are sending action from our UI to our ViewModel
-                        viewModel.onEvent(SleepsEvent.ToggleOrderSection)
+                        onEvent(SleepsEvent.ToggleOrderSection)
                     },
                 ) {
                     Icon(
@@ -142,7 +146,7 @@ fun SleepsScreen(
             }
             AnimatedVisibility(
                 // When this one will toggle, the animation will fire again
-                visible = state.isOrderSectionVisible,
+                visible = sleepsState.isOrderSectionVisible,
                 // When it slides in
                 enter = fadeIn() + slideInVertically(),
                 exit = fadeOut() + slideOutVertically()
@@ -151,19 +155,19 @@ fun SleepsScreen(
                 OrderSection(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    sleepOrder = state.sleepOrder,
+                        .padding(vertical = spacesShapes.spaces.spaceXL),
+                    sleepOrder = sleepsState.sleepOrder,
                     // When we click on the button we want to send event to our view model
                     onOrderChange = {
-                        viewModel.onEvent(SleepsEvent.Order(it))
+                        onEvent(SleepsEvent.Order(it))
                     }
                 )
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            SpacerVerXL()
             // Our list
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 // Getting all sleeps
-                items(state.sleeps) { sleep ->
+                items(sleepsState.sleeps) { sleep ->
                     SleepItem(
                         sleep = sleep,
                         modifier = Modifier
@@ -175,22 +179,22 @@ fun SleepsScreen(
                                 )
                             },
                         onDeleteClick = {
-                            viewModel.onEvent(SleepsEvent.DeleteSleep(sleep))
+                            onEvent(SleepsEvent.DeleteSleep(sleep))
                             // Showing snackBar need coroutine because it take some time for show up
                             scope.launch {
                                 // Our result of our SnackBar
-                                val result = snackbarHostState.showSnackbar(
+                                val result = snackBarHostState.showSnackbar(
                                     message = "Sleep deleted",
                                     actionLabel = "Undo"
                                 )
                                 // If we clicked on the SnackBar, lets restore the sleep
                                 if(result == SnackbarResult.ActionPerformed) {
-                                    viewModel.onEvent(SleepsEvent.RestoreSleep)
+                                    onEvent(SleepsEvent.RestoreSleep)
                                 }
                             }
                         }
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    SpacerVerXL()
                 }
             }
         }

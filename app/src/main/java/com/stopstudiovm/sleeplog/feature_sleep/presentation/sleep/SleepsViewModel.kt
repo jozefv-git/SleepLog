@@ -1,7 +1,8 @@
 package com.stopstudiovm.sleeplog.feature_sleep.presentation.sleep
 
-import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stopstudiovm.sleeplog.feature_sleep.domain.model.Sleep
@@ -20,8 +21,8 @@ class SleepsViewModel @Inject constructor(
     private val sleepUseCases: SleepUseCases
 ): ViewModel() {
     // Our states - it will contains the values what our UI can observe
-    private val _state = mutableStateOf(SleepsState())
-    val state: State<SleepsState> = _state
+    var sleepState by mutableStateOf(SleepsState())
+        private set
 
     // Reference to last deleted sleep
     private var recentlyDeletedSleep: Sleep? = null
@@ -40,8 +41,8 @@ class SleepsViewModel @Inject constructor(
             is SleepsEvent.Order -> {
                 // Check if we are clicking on the same button
                 // We want to compare classes not references
-                if (state.value.sleepOrder::class == event.sleepOrder::class &&
-                        state.value.sleepOrder.orderType == event.sleepOrder.orderType){
+                if (sleepState.sleepOrder::class == event.sleepOrder::class &&
+                        sleepState.sleepOrder.orderType == event.sleepOrder.orderType){
                     return
                 }
                 getSleeps(event.sleepOrder)
@@ -66,9 +67,9 @@ class SleepsViewModel @Inject constructor(
                 }
             }
             is SleepsEvent.ToggleOrderSection -> {
-                _state.value = state.value.copy(
+                sleepState = sleepState.copy(
                     // So we will update this with same value( copy) but the value of the copy can be changed now
-                    isOrderSectionVisible = !state.value.isOrderSectionVisible
+                    isOrderSectionVisible = !sleepState.isOrderSectionVisible
                 )
             }
         }
@@ -80,7 +81,7 @@ class SleepsViewModel @Inject constructor(
         // it will trigger this flow when something new will change in our database
         getSleepsJob = sleepUseCases.getSleeps(sleepOrder)
             .onEach { sleeps ->
-                _state.value = state.value.copy(
+                sleepState = sleepState.copy(
                     sleeps = sleeps,
                     sleepOrder = sleepOrder
                 )

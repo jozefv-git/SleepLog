@@ -23,14 +23,16 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import com.stopstudiovm.sleeplog.feature_sleep.domain.model.Sleep
+import com.stopstudiovm.sleeplog.feature_sleep.presentation.util.SpacerVerXL
 import com.stopstudiovm.sleeplog.ui.theme.DarkGray
+import com.stopstudiovm.sleeplog.ui.theme.SpacesShapes
 
 // Sleep List item
 @Composable
 fun SleepItem(
     modifier: Modifier = Modifier,
     sleep: Sleep,
-    cornerRadius: Dp = 10.dp,
+    spacesShapes: SpacesShapes = SpacesShapes(),
     cutCornerSize: Dp = 30.dp,
     onDeleteClick: () -> Unit
 ) {
@@ -50,7 +52,7 @@ fun SleepItem(
                 drawRoundRect(
                     color = Color(sleep.color),
                     size = size,
-                    cornerRadius = CornerRadius(cornerRadius.toPx())
+                    cornerRadius = CornerRadius(spacesShapes.spaces.spaceL.toPx())
                 )
                 drawRoundRect(
                     color = Color(
@@ -58,15 +60,15 @@ fun SleepItem(
                     ),
                     topLeft = Offset(size.width - cutCornerSize.toPx(), -100f),
                     size = Size(cutCornerSize.toPx() + 100f, cutCornerSize.toPx() + 100f),
-                    cornerRadius = CornerRadius(cornerRadius.toPx())
+                    cornerRadius = CornerRadius(spacesShapes.spaces.spaceL.toPx())
                 )
             }
         }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
-                .padding(end = 32.dp)
+                .padding(spacesShapes.spaces.spaceXL)
+                .padding(end = spacesShapes.spaces.spaceXXL)
         ) {
             Text(
                 text = sleep.quality,
@@ -74,14 +76,13 @@ fun SleepItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            //Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "${sleep.sleepDurationHours} Hours ${sleep.sleepDurationMinutes} Minutes",
                 style = MaterialTheme.typography.titleMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            SpacerVerXL()
             if (sleep.content.isNotEmpty()) {
                 Text(
                     text = sleep.content,
@@ -90,7 +91,7 @@ fun SleepItem(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            SpacerVerXL()
             Text(
                 text = sleep.date,
                 style = MaterialTheme.typography.bodyMedium,
