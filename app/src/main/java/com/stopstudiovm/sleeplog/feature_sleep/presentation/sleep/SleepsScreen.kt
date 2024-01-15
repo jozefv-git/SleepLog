@@ -16,6 +16,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -57,7 +58,6 @@ fun SleepsScreen(
 ) {
 
     // We need this for our snack bar
-    //val state = viewModel.state.value
     val snackBarHostState = remember {
         SnackbarHostState()
     }
@@ -185,7 +185,8 @@ fun SleepsScreen(
                                 // Our result of our SnackBar
                                 val result = snackBarHostState.showSnackbar(
                                     message = "Sleep deleted",
-                                    actionLabel = "Undo"
+                                    actionLabel = "Undo",
+                                    duration = SnackbarDuration.Short
                                 )
                                 // If we clicked on the SnackBar, lets restore the sleep
                                 if(result == SnackbarResult.ActionPerformed) {
