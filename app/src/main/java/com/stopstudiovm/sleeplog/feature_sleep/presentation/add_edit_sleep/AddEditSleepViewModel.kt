@@ -1,9 +1,9 @@
 package com.stopstudiovm.sleeplog.feature_sleep.presentation.add_edit_sleep
 
 import android.util.Log
-import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -33,29 +33,9 @@ class AddEditSleepViewModel @Inject constructor(
     // Bcs every time when we click a letter it will reload the UI
     // We will need to create class which will hold states for our hint
 
-    // Content state
-    private val _sleepContent = mutableStateOf(
-        SleepTextFieldState(
-            hint = "Describe your sleep..."
-        )
-    )
-    val sleepContent: State<SleepTextFieldState> = _sleepContent
-
-    // Our states - we will get middle color .toArgb() will convert it to int
-    private val _sleepQualityColor = mutableStateOf(Sleep.sleepQualityM["AVERAGE"]!!.toArgb())
-    val sleepQualityColor: State<Int> = _sleepQualityColor
-
-    private val _sleepQuality = mutableStateOf("AVERAGE")
-    val sleepQuality: State<String> = _sleepQuality
-
-    private var _sleepDate = mutableStateOf("")
-    val sleepDate: State<String> = _sleepDate
-
-    private val _sleepTimeHours = mutableStateOf(3)
-    val sleepTimeHours: State<Int> = _sleepTimeHours
-
-    private val _sleepTimeMins = mutableStateOf(0)
-    val sleepTimeMins: State<Int> = _sleepTimeMins
+    var addEditSleepState by mutableStateOf(AddEditSleepState())
+        private set
+    private var sleepTextFieldState = SleepTextFieldState()
 
     // We need to use SharedFlow if we want to represent one time event for example snack bar...
     private val _eventFlow = MutableSharedFlow<UiEvent>()
@@ -68,23 +48,28 @@ class AddEditSleepViewModel @Inject constructor(
         // Navigation argument will be of type int and it will be called sleepId
         savedStateHandle.get<Int>("sleepId")?.let { sleepId ->
             // -1 is our default value so if it is not default value, we will get values from our db and putting it into our state
-            if(sleepId != -1) {
+            if (sleepId != -1) {
                 viewModelScope.launch {
                     sleepUseCases.getSleep(sleepId)?.also { sleep ->
                         currentSleepId = sleep.id
-                        if (sleep.content.isNotEmpty()){
-                            _sleepContent.value = _sleepContent.value.copy(
+                        if (sleep.content.isNotEmpty()) {
+                            sleepTextFieldState = sleepTextFieldState.copy(
                                 text = sleep.content,
                                 isHintVisible = false
                             )
+                            addEditSleepState = addEditSleepState.copy(
+                                sleepTextField = sleepTextFieldState,
+                            )
                         }
-                        _sleepQualityColor.value = sleep.color
-                        _sleepTimeHours.value = sleep.sleepDurationHours
-                        _sleepTimeMins.value = sleep.sleepDurationMinutes
+                        addEditSleepState = addEditSleepState.copy(
+                            sleepQualityColor = sleep.color,
+                            sleepTimeHours = sleep.sleepDurationHours,
+                            sleepTimeMinutes = sleep.sleepDurationMinutes,
+                            sleepDate = sleep.date,
+                            sleepQuality = sleep.quality
+                        )
                         //Test: Log.d("TimeH",sleep.sleepDurationHours.toString())
                         //Test: Log.d("TimeM",sleep.sleepDurationMinutes.toString())
-                        _sleepDate.value = sleep.date
-                        _sleepQuality.value = sleep.quality
                     }
                 }
             }
@@ -93,35 +78,37 @@ class AddEditSleepViewModel @Inject constructor(
 
     // Function which will take events from the edit screen
     fun onEvent(event: AddEditSleepEvent) {
-        when(event) {
+        when (event) {
             is AddEditSleepEvent.EnteredContent -> {
                 // We want to update sleepContent value with new value
-                _sleepContent.value = _sleepContent.value.copy(
-                    text = event.value
-                )
+                sleepTextFieldState = sleepTextFieldState.copy(text = event.value)
+                addEditSleepState = addEditSleepState.copy(sleepTextField = sleepTextFieldState)
             }
             // When we focus on our textField, we want to hide our hint
             is AddEditSleepEvent.ChangeContentFocus -> {
-                _sleepContent.value = _sleepContent.value.copy(
-                    // When we are not focused on the text field, we want to show the hint
-                    // Also we want to be sure that hint will be shown only when text is empty
-                    isHintVisible = !event.focusState.isFocused &&
-                            _sleepContent.value.text.isBlank()
+                sleepTextFieldState = sleepTextFieldState.copy(
+                    isHintVisible = !event.focusState.isFocused && sleepTextFieldState.text.isBlank()
                 )
+                addEditSleepState = addEditSleepState.copy(sleepTextField = sleepTextFieldState)
             }
+
             is AddEditSleepEvent.ChangeColor -> {
-                _sleepQualityColor.value = event.color
+                addEditSleepState = addEditSleepState.copy(sleepQualityColor = event.color)
             }
+
             is AddEditSleepEvent.ChangeQuality -> {
-                _sleepQuality.value = event.quality
+                addEditSleepState = addEditSleepState.copy(sleepQuality = event.quality)
             }
+
             is AddEditSleepEvent.ShowDatePicker -> {
                 viewModelScope.launch {
 
                     // Date picker
-                    val startYear = yearToMillis("UTC", Constants.PICKER_MIN_START_YEAR,
+                    val startYear = yearToMillis(
+                        "UTC", Constants.PICKER_MIN_START_YEAR,
                         Constants.PICKER_MIN_START_MONTH,
-                        Constants.PICKER_MIN_START_DAY)
+                        Constants.PICKER_MIN_START_DAY
+                    )
 
                     val calConstraints = setPickerConstraints(startYear)
 
@@ -130,35 +117,38 @@ class AddEditSleepViewModel @Inject constructor(
                         .setCalendarConstraints(calConstraints.build()).build()
                     event.activity.let {
                         picker.show(it.supportFragmentManager, picker.toString())
-                        picker.addOnPositiveButtonClickListener {
-                                date ->
-                            Log.d("date",date.toString())
-                            _sleepDate.value = unixToDate(date)
+                        picker.addOnPositiveButtonClickListener { date ->
+                            Log.d("date", date.toString())
+                            addEditSleepState = addEditSleepState.copy(sleepDate = unixToDate(date))
                         }
                     }
 
                 }
             }
+
             is AddEditSleepEvent.ShowTimePicker -> {
-                _sleepTimeHours.value = event.time.hours
-                _sleepTimeMins.value = event.time.minutes
+                addEditSleepState = addEditSleepState.copy(
+                    sleepTimeHours = event.time.hours,
+                    sleepTimeMinutes = event.time.minutes
+                )
             }
+
             is AddEditSleepEvent.SaveSleep -> {
                 viewModelScope.launch {
                     try {
                         sleepUseCases.addSleep(
                             Sleep(
-                                content = sleepContent.value.text,
-                                date = sleepDate.value,
-                                color = sleepQualityColor.value,
+                                content = addEditSleepState.sleepTextField.text,
+                                date = addEditSleepState.sleepDate,
+                                color = addEditSleepState.sleepQualityColor,
                                 id = currentSleepId,
-                                sleepDurationHours = sleepTimeHours.value,
-                                sleepDurationMinutes = sleepTimeMins.value,
-                                quality = sleepQuality.value,
+                                sleepDurationHours = addEditSleepState.sleepTimeHours,
+                                sleepDurationMinutes = addEditSleepState.sleepTimeMinutes,
+                                quality = addEditSleepState.sleepQuality,
                             )
                         )
                         _eventFlow.emit(UiEvent.SaveSleep) // So we can react on that on the screen
-                    } catch(e: InvalidSleepException) { // If the title content was empty
+                    } catch (e: InvalidSleepException) { // If the title content was empty
                         _eventFlow.emit(
                             UiEvent.ShowSnackbar(
                                 message = e.message ?: "Couldn't save sleep"
@@ -171,13 +161,14 @@ class AddEditSleepViewModel @Inject constructor(
     }
 
     sealed class UiEvent {
-        data class ShowSnackbar(val message: String): UiEvent()
-        object SaveSleep: UiEvent() // When we click on the button, we will save the note and after we save it, we want to navigate back
+        data class ShowSnackbar(val message: String) : UiEvent()
+        object SaveSleep :
+            UiEvent() // When we click on the button, we will save the note and after we save it, we want to navigate back
     }
 
 
     // Constrains for datePicker
-    private fun setPickerConstraints(startYear: Long): CalendarConstraints.Builder{
+    private fun setPickerConstraints(startYear: Long): CalendarConstraints.Builder {
         val today = MaterialDatePicker.todayInUtcMilliseconds()
         return CalendarConstraints.Builder()
             .setStart(startYear)

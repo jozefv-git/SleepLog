@@ -25,7 +25,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.stopstudiovm.sleeplog.feature_sleep.domain.model.Sleep
 import com.stopstudiovm.sleeplog.feature_sleep.presentation.add_edit_sleep.components.RoundedButton
@@ -33,28 +32,27 @@ import com.stopstudiovm.sleeplog.feature_sleep.presentation.add_edit_sleep.compo
 import com.stopstudiovm.sleeplog.feature_sleep.presentation.util.FullHours
 import com.stopstudiovm.sleeplog.feature_sleep.presentation.util.Hours
 import com.stopstudiovm.sleeplog.feature_sleep.presentation.util.HoursNumberPicker
+import com.stopstudiovm.sleeplog.feature_sleep.presentation.util.SpacerVerM
 import com.stopstudiovm.sleeplog.ui.theme.*
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun AddEditSleepScreen(
+    spacesShapes: SpacesShapes = SpacesShapes(),
+    activity: AppCompatActivity,
     navController: NavController,
+    addEditState: AddEditSleepState,
+    eventFlow: SharedFlow<AddEditSleepViewModel.UiEvent>,
     sleepColor: Int,
-    viewModel: AddEditSleepViewModel = hiltViewModel(),
-    activity: AppCompatActivity
+    onEvent: (AddEditSleepEvent) -> Unit
 ) {
-    // References from our ViewModel
-    val contentState = viewModel.sleepContent.value
-    val dateState = viewModel.sleepDate.value
-
-    val hoursState = viewModel.sleepTimeHours.value
-    val minutesState = viewModel.sleepTimeMins.value
     // Time picker
-    var timePicker: Hours = FullHours(hoursState, minutesState)
+    var timePicker: Hours = FullHours(addEditState.sleepTimeHours, addEditState.sleepTimeMinutes)
 
-    val snackbarHostState = remember {
+    val snackBarHostState = remember {
         SnackbarHostState()
     }
 
@@ -63,17 +61,17 @@ fun AddEditSleepScreen(
         Animatable(
             // We are checking if we clicked on existing sleep
             // sleepColor is color from our navigation
-            Color((if (sleepColor != -1) sleepColor else viewModel.sleepQualityColor.value))
+            Color((if (sleepColor != -1) sleepColor else addEditState.sleepQualityColor))
         )
     }
     // For animation
     val scope = rememberCoroutineScope()
     // Key true, so we will get snack only once, not everytime when we do recompose
     LaunchedEffect(key1 = true) {
-        viewModel.eventFlow.collectLatest { event ->
+        eventFlow.collectLatest { event ->
             when (event) {
                 is AddEditSleepViewModel.UiEvent.ShowSnackbar -> {
-                    snackbarHostState.showSnackbar(
+                    snackBarHostState.showSnackbar(
                         message = event.message
                     )
                 }
@@ -88,31 +86,32 @@ fun AddEditSleepScreen(
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
+                shape = spacesShapes.shapes.large,
                 onClick = {
-                    viewModel.onEvent(AddEditSleepEvent.SaveSleep)
+                    onEvent(AddEditSleepEvent.SaveSleep)
                 },
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
                 Icon(imageVector = Icons.Default.Save, contentDescription = "Save sleep")
             }
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }) {
+        snackbarHost = { SnackbarHost(snackBarHostState) }) {
         // Actual edit screen content
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(sleepBackgroundAnimatable.value)
-                .padding(16.dp)
+                .padding(spacesShapes.spaces.spaceXL)
         ) {
             Text(
                 style = MaterialTheme.typography.titleLarge,
                 text = "Select your quality of sleep"
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            SpacerVerM()
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp),
+                    .padding(spacesShapes.spaces.spaceM),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 // Rounded button creation
@@ -121,7 +120,7 @@ fun AddEditSleepScreen(
                     val sleepQualityTxt = quality.key
 
                     val buttonColor =
-                        if (viewModel.sleepQualityColor.value == sleepQualityColorInt) {
+                        if (addEditState.sleepQualityColor == sleepQualityColorInt) {
                             Color.Black
                         } else Color.Transparent
 
@@ -140,29 +139,29 @@ fun AddEditSleepScreen(
                                     )
                                 )
                             }
-                            viewModel.onEvent(AddEditSleepEvent.ChangeColor(sleepQualityColorInt))
-                            viewModel.onEvent(AddEditSleepEvent.ChangeQuality(sleepQualityTxt))
+                            onEvent(AddEditSleepEvent.ChangeColor(sleepQualityColorInt))
+                            onEvent(AddEditSleepEvent.ChangeQuality(sleepQualityTxt))
                         }
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            SpacerVerM()
             Divider()
-            Spacer(modifier = Modifier.height(8.dp))
+            SpacerVerM()
             Text(
                 style = MaterialTheme.typography.titleLarge,
                 text = "Date of sleep"
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            SpacerVerM()
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 8.dp, end = 8.dp),
+                    .padding(start = spacesShapes.spaces.spaceM, end = spacesShapes.spaces.spaceM),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = dateState,
+                    text = addEditState.sleepDate,
                     style = MaterialTheme.typography.titleMedium,
                     color = Color.Black
                 )
@@ -172,25 +171,25 @@ fun AddEditSleepScreen(
                     textColor = MaterialTheme.colorScheme.onSurface,
                     background = Violet,
                     borderColor = Color.Transparent,
-                    onClick = { viewModel.onEvent(AddEditSleepEvent.ShowDatePicker(activity)) }
+                    onClick = { onEvent(AddEditSleepEvent.ShowDatePicker(activity)) }
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            SpacerVerM()
             Divider()
-            Spacer(modifier = Modifier.height(8.dp))
+            SpacerVerM()
             Text(
                 style = MaterialTheme.typography.titleLarge,
                 text = "Length of sleep"
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            SpacerVerM()
             HoursNumberPicker(
-                Modifier.padding(8.dp),
+                Modifier.padding(spacesShapes.spaces.spaceM),
                 dividersColor = DarkGray,
                 value = timePicker,
                 textStyle = MaterialTheme.typography.titleMedium,
                 onValueChange = {
                     timePicker = it
-                    viewModel.onEvent(AddEditSleepEvent.ShowTimePicker(it))
+                    onEvent(AddEditSleepEvent.ShowTimePicker(it))
                 },
                 hoursDivider = {
                     Text(
@@ -209,29 +208,29 @@ fun AddEditSleepScreen(
                     )
                 }
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            SpacerVerM()
             Divider()
-            Spacer(modifier = Modifier.height(8.dp))
+            SpacerVerM()
             Text(
                 style = MaterialTheme.typography.titleLarge,
                 text = "Sleep description"
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            SpacerVerM()
             TransparentHintTextField(
-                text = contentState.text,
-                hint = contentState.hint,
+                text = addEditState.sleepTextField.text,
+                hint = addEditState.sleepTextField.hint,
                 // Whenever we type something - we will passing the new value
                 onValueChange = {
-                    viewModel.onEvent(AddEditSleepEvent.EnteredContent(it))
+                    onEvent(AddEditSleepEvent.EnteredContent(it))
                 },
                 onFocusChange = {
-                    viewModel.onEvent(AddEditSleepEvent.ChangeContentFocus(it))
+                    onEvent(AddEditSleepEvent.ChangeContentFocus(it))
                 },
-                isHintVisible = contentState.isHintVisible,
+                isHintVisible = addEditState.sleepTextField.isHintVisible,
                 textStyle = MaterialTheme.typography.titleMedium,
                 modifier = Modifier
                     .fillMaxHeight()
-                    .padding(8.dp)
+                    .padding(spacesShapes.spaces.spaceM)
             )
 
         }
