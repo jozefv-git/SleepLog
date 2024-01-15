@@ -7,18 +7,18 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.stopstudiovm.sleeplog.feature_sleep.presentation.add_edit_sleep.AddEditSleepScreen
+import com.stopstudiovm.sleeplog.feature_sleep.presentation.add_edit_sleep.AddEditSleepViewModel
 import com.stopstudiovm.sleeplog.feature_sleep.presentation.sleep.SleepsScreen
+import com.stopstudiovm.sleeplog.feature_sleep.presentation.sleep.SleepsViewModel
 import com.stopstudiovm.sleeplog.feature_sleep.presentation.util.Screen
 import com.stopstudiovm.sleeplog.ui.theme.SleepLogTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -40,48 +40,52 @@ class MainActivity : AppCompatActivity() {
                     NavHost(
                         navController = navController,
                         startDestination = Screen.SleepsScreen.route
-                    ){
+                    ) {
                         // Here we can define our different screens
-                        composable(route = Screen.SleepsScreen.route){
-                            SleepsScreen(navController = navController)
+                        composable(route = Screen.SleepsScreen.route) {
+                            // ViewModel initialization with corresponding states
+                            val sleepsViewModel = hiltViewModel<SleepsViewModel>()
+                            val sleepsState = sleepsViewModel.sleepState
+                            SleepsScreen(
+                                navController = navController,
+                                sleepsState = sleepsState,
+                                onEvent = sleepsViewModel::onEvent
+                            )
                         }
                         // Pass the arguments between the screens
                         composable(route = Screen.AddEditSleepScreen.route +
-                        "?sleepId={sleepId}&sleepColor={sleepColor}",
-                        arguments = listOf(
-                            navArgument(
-                                name = "sleepId"
-                            ){ // Builder
-                                type = NavType.IntType
-                                defaultValue = -1 // We are using this value in AddEditNoteScreen and viewModels
-                            },
-                            navArgument(
-                                name = "sleepColor"
-                            ){ // Builder
-                                type = NavType.IntType
-                                defaultValue = -1
-                            }
-                        )){
+                                "?sleepId={sleepId}&sleepColor={sleepColor}",
+                            arguments = listOf(
+                                navArgument(
+                                    name = "sleepId"
+                                ) { // Builder
+                                    type = NavType.IntType
+                                    defaultValue =
+                                        -1 // We are using this value in AddEditNoteScreen and viewModels
+                                },
+                                navArgument(
+                                    name = "sleepColor"
+                                ) { // Builder
+                                    type = NavType.IntType
+                                    defaultValue = -1
+                                }
+                            )) {
+                            val addEditSleepViewModel = hiltViewModel<AddEditSleepViewModel>()
+                            val addEditSleepState = addEditSleepViewModel.addEditSleepState
                             // We want to get Int with selected key
                             val color = it.arguments?.getInt("sleepColor") ?: -1
-                            AddEditSleepScreen(navController = navController, sleepColor = color, activity = activity)
+                            AddEditSleepScreen(
+                                activity = activity,
+                                navController = navController,
+                                addEditState = addEditSleepState,
+                                eventFlow = addEditSleepViewModel.eventFlow,
+                                sleepColor = color,
+                                onEvent = addEditSleepViewModel::onEvent
+                            )
                         }
                     }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    SleepLogTheme {
-        Greeting("Android")
     }
 }
