@@ -21,7 +21,7 @@ fun SleepLogTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composab
     MaterialTheme(
         colorScheme = DarkColorPalette,
         typography = Typography,
-        shapes = Shapes,
+        shapes = SpacesShapes().shapes,
         content = content
     )
 }
