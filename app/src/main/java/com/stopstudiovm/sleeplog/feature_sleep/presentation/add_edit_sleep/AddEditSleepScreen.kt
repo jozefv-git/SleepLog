@@ -124,9 +124,8 @@ fun AddEditSleepScreen(
                             Color.Black
                         } else Color.Transparent
 
-                    RoundedButton(text = quality.key,
-                        textStyle = MaterialTheme.typography.bodyLarge,
-                        textColor = MaterialTheme.colorScheme.onSurface,
+                    RoundedButton(
+                        text = quality.key,
                         background = quality.value,
                         borderColor = buttonColor,
                         onClick = {
@@ -166,9 +165,8 @@ fun AddEditSleepScreen(
                     color = Color.Black
                 )
 
-                RoundedButton(text = "DATE",
-                    textStyle = MaterialTheme.typography.bodyLarge,
-                    textColor = MaterialTheme.colorScheme.onSurface,
+                RoundedButton(
+                    text = "DATE",
                     background = Violet,
                     borderColor = Color.Transparent,
                     onClick = { onEvent(AddEditSleepEvent.ShowDatePicker(activity)) }

@@ -3,9 +3,10 @@ package com.stopstudiovm.sleeplog.feature_sleep.presentation.sleep.components
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.stopstudiovm.sleeplog.feature_sleep.presentation.util.OrderType
 import com.stopstudiovm.sleeplog.feature_sleep.presentation.util.SleepOrder
+import com.stopstudiovm.sleeplog.feature_sleep.presentation.util.SpacerHorM
+import com.stopstudiovm.sleeplog.feature_sleep.presentation.util.SpacerVerXL
 
 @Composable
 fun OrderSection(
@@ -22,14 +23,14 @@ fun OrderSection(
                 selected = sleepOrder is SleepOrder.Date,
                 onSelect = { onOrderChange(SleepOrder.Date(sleepOrder.orderType))}
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            SpacerHorM()
             DefaultRadioButton(
                 text = "Quality",
                 selected = sleepOrder is SleepOrder.Color,
                 onSelect = { onOrderChange(SleepOrder.Color(sleepOrder.orderType))}
             )
         }
-        Spacer(modifier = Modifier.height(16.dp))
+        SpacerVerXL()
         Row(
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -40,7 +41,7 @@ fun OrderSection(
                     onOrderChange(sleepOrder.copy(OrderType.Ascending))
                 }
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            SpacerHorM()
             DefaultRadioButton(
                 text = "Descending",
                 selected = sleepOrder.orderType is OrderType.Descending,

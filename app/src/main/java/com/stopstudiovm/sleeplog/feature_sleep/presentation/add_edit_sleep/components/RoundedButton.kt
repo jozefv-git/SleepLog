@@ -22,11 +22,11 @@ import androidx.compose.ui.unit.dp
 fun RoundedButton(
     text: String,
     textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
-    textColor: Color = MaterialTheme.colorScheme.onSurface,
+    textColor: Color = Color.Black,
     background: Color,
     borderColor: Color,
     onClick: () -> Unit
-){
+) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
@@ -42,10 +42,11 @@ fun RoundedButton(
             .clickable {
                 onClick()
             }
-    ){
+    ) {
         Text(
             text = text,
             style = textStyle,
-            color = textColor)
+            color = textColor
+        )
     }
 }
