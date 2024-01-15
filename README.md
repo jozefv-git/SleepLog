@@ -1,6 +1,6 @@
 # SleepLog
 
-SleepLog is easy to use application for record the sleep quality with possibility to sort and update the records. Records are stored locally in the device.
+SleepLog is easy to use application for record the sleep quality with possibility to sort and update the records. Records are stored locally in the device. **Min sdk to run application on android device is 30 - Android 11**
 ## Update for 2024 in sleepLogRefactor2024 
 
  ### Functionality
