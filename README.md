@@ -1,6 +1,7 @@
 # SleepLog
 
 SleepLog is easy to use application for record the sleep quality with possibility to sort and update the records. Records are stored locally in the device.
+## FOR MOST ACTUAL VERSION CHECK BRANCH "sleepLogRefactor2024"
 
 
 Sleep List             |  Sorting option             |  Add sleep
