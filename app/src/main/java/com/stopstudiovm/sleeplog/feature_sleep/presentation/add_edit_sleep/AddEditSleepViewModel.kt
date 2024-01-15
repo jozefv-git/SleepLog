@@ -116,13 +116,21 @@ class AddEditSleepViewModel @Inject constructor(
                         .setTitleText("Date of sleep")
                         .setCalendarConstraints(calConstraints.build()).build()
                     event.activity.let {
-                        picker.show(it.supportFragmentManager, picker.toString())
-                        picker.addOnPositiveButtonClickListener { date ->
-                            Log.d("date", date.toString())
-                            addEditSleepState = addEditSleepState.copy(sleepDate = unixToDate(date))
+                        // Make datePicker button clickable only once
+                        if (addEditSleepState.dateClickedOnce) {
+                            addEditSleepState = addEditSleepState.copy(dateClickedOnce = false)
+                            picker.show(it.supportFragmentManager, picker.toString())
+                            picker.addOnPositiveButtonClickListener { date ->
+                                Log.d("date", date.toString())
+                                addEditSleepState =
+                                    addEditSleepState.copy(sleepDate = unixToDate(date))
+                            }
+                            // After date picker is dismissed, make button clickable again
+                            picker.addOnDismissListener {
+                                addEditSleepState = addEditSleepState.copy(dateClickedOnce = true)
+                            }
                         }
                     }
-
                 }
             }
 

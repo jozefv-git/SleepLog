@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.toArgb
 import com.stopstudiovm.sleeplog.feature_sleep.domain.model.Sleep
 
 data class AddEditSleepState(
+    val dateClickedOnce: Boolean = true,
     val sleepQualityColor: Int = Sleep.sleepQualityM["AVERAGE"]!!.toArgb(),
     val sleepQuality: String = "AVERAGE",
     val sleepDate: String = "",
