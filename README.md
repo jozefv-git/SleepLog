@@ -6,7 +6,9 @@ SleepLog is easy to use application for record the sleep quality with possibilit
 
 Sleep List             |  Sorting option             |  Add sleep
 :-------------------------:|:-------------------------:|:-------------------------:
-![](https://i.ibb.co/44FW7mh/Sleep-list.jpg)  |  ![](https://i.ibb.co/4Pp22h0/Sleep-list-selection.jpg)   |  ![](https://i.ibb.co/0r39XWR/Add-sleep.jpg)
+![Sleep-list](https://github.com/user-attachments/assets/df1fe231-8d2f-4b5a-bb44-7e09e775047d)|  ![Sleep-list-selection](https://github.com/user-attachments/assets/db678edc-14c5-484b-a4fd-d542fbf3603e)   |  ![Add-sleep](https://github.com/user-attachments/assets/86096686-cdd8-43bb-ac62-b735775c78ab)
+
+
 
 
 
